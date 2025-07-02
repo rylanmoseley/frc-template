@@ -2,7 +2,8 @@ plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2025.3.2"
     id "com.peterabeles.gversion" version "1.10"
-    id "com.diffplug.spotless" version "6.12.0"
+    id "com.diffplug.spotless" version "7.0.4"
+    id "com.github.spotbugs" version "6.2.1"
 }
 
 java {
@@ -126,7 +127,11 @@ wpi.sim.addDriverstation()
 // in order to make them all available at runtime. Also adding the manifest so WPILib
 // knows where to look for our Robot Class.
 jar {
-    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
     from sourceSets.main.allSource
     manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
@@ -187,9 +192,6 @@ task(eventDeploy) {
 createVersionFile.dependsOn(eventDeploy)
 
 // Spotless formatting
-if (!System.getenv().containsKey("CI")) {
-    project.compileJava.dependsOn(spotlessApply)
-}
 spotless {
     java {
         target fileTree(".") {
@@ -197,7 +199,7 @@ spotless {
             exclude "**/build/**", "**/build-*/**", "**/generated/**", "**/BuildConstants.java"
         }
         toggleOffOn()
-        googleJavaFormat()
+        palantirJavaFormat()
         removeUnusedImports()
         trimTrailingWhitespace()
         endWithNewline()
@@ -208,7 +210,7 @@ spotless {
             exclude "**/build/**", "**/build-*/**"
         }
         greclipse()
-        indentWithSpaces(4)
+        leadingTabsToSpaces(4)
         trimTrailingWhitespace()
         endWithNewline()
     }
@@ -225,7 +227,28 @@ spotless {
             exclude "**/build/**", "**/build-*/**"
         }
         trimTrailingWhitespace()
-        indentWithSpaces(2)
+        leadingTabsToSpaces(2)
         endWithNewline()
+    }
+}
+
+javadoc {
+    exclude '**/BuildConstants.java' // Exclude generated BuildConstants
+}
+
+if (!System.getenv().containsKey("CI")) {
+    tasks.named('build') {
+        dependsOn 'spotlessApply'
+    }
+}
+
+spotbugs {
+    ignoreFailures = true
+}
+
+tasks.spotbugsMain {
+    reports.create("xml") {
+        required = true
+        outputLocation = file("$buildDir/reports/spotbugsXml.xml")
     }
 }
