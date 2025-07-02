@@ -1,2 +1,1 @@
-# frc-template
-frc template
+# frc-template [![Build and Test](https://github.com/rylanmoseley/frc-template/actions/workflows/build.yml/badge.svg)](https://github.com/rylanmoseley/frc-template/actions/workflows/build.yml) [![Check formatting](https://github.com/rylanmoseley/frc-template/actions/workflows/check-format.yml/badge.svg)](https://github.com/rylanmoseley/frc-template/actions/workflows/check-format.yml) [![Run linter](https://github.com/rylanmoseley/frc-template/actions/workflows/lint.yml/badge.svg)](https://github.com/rylanmoseley/frc-template/actions/workflows/lint.yml)
